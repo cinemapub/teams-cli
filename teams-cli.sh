@@ -49,10 +49,14 @@ flag|h|help|show usage
 flag|q|quiet|no output
 flag|v|verbose|also show debug messages
 flag|f|force|do not ask for confirmation (always yes)
-option|l|log_dir|folder for log files |$HOME/log/$script_prefix
-option|t|tmp_dir|folder for temp files|/tmp/$script_prefix
-choice|1|action|action to perform|action1,action2,check,env,update
-#param|?|input|input file/text
+option|l|log_dir|folder for log files |./log
+option|t|tmp_dir|folder for temp files|./tmp
+option|C|COLOR|color of the message|666666
+option|I|URL_IMAGE|public image URL to include
+option|U|URL_WEBHOOK|MS Teams URL to use as destination
+choice|1|action|action to perform|text,image,check,env,update
+param|?|title|Title of the message
+param|?|body|Body of the message
 " -v -e '^#' -e '^\s*$'
 }
 
@@ -67,16 +71,16 @@ Script:main() {
 
   action=$(Str:lower "$action")
   case $action in
-    action1)
-      #TIP: use «$script_prefix action1» to ...
-      #TIP:> $script_prefix action1
-      do_action1
+    text)
+      template="$script_install_folder/template/adaptive_text.json"
+      #TIP:> $script_prefix text/image "title" "body"
+      send_message "$template" "$title" "$body" "$URL_IMAGE"
       ;;
 
-    action2)
-      #TIP: use «$script_prefix action2» to ...
-      #TIP:> $script_prefix action2
-      do_action2
+    image)
+      template="$script_install_folder/template/message_card.json"
+      #TIP:> $script_prefix text/image "title" "body"
+      send_message "$template" "$title" "$body" "$URL_IMAGE"
       ;;
 
     check | env)
@@ -108,19 +112,32 @@ Script:main() {
 ## Put your helper scripts here
 #####################################################################
 
-do_action1() {
-  IO:log "action1"
-  # Examples of required binaries/scripts and how to install them
-  # Os:require "ffmpeg"
-  # Os:require "convert" "imagemagick"
-  # Os:require "IO:progressbar" "basher install pforret/IO:progressbar"
-  # (code)
-}
+send_message() {
+  # $1 = template
+  # $2 = title
+  # $3 = text
 
-do_action2() {
-  IO:log "action2"
-  # (code)
+  # https://learn.microsoft.com/en-us/outlook/actionable-messages/send-via-connectors
+  # https://learn.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/connectors-using?source=recommendations&tabs=cURL
+  Os:require "jq"
+  Os:require "curl"
+  IO:log "template: $1"
+  IO:log "title: $2"
 
+  json_file=$(Os:tempfile json)
+  < "$1" awk \
+    -v color="$COLOR" \
+    -v title="$title" \
+    -v body="$body" \
+    -v image="$URL_IMAGE" \
+    '{
+    gsub("{COLOR}",color);
+    gsub("{TITLE}",title);
+    gsub("{BODY}",body);
+    gsub("{IMAGE}",image);
+    print;
+    }' > $json_file
+  curl -H 'Content-Type: application/json' -d "@$json_file" "$URL_WEBHOOK"
 }
 
 #####################################################################

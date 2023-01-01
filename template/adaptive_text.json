@@ -1,0 +1,71 @@
+{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.0",
+  "body": [
+    {
+      "type": "ColumnSet",
+      "id": "1ede2aba-61b9-faa0-9895-9ed0c26b2e6f",
+      "columns": [
+        {
+          "type": "Column",
+          "id": "e5756242-0963-37a2-7cb4-4397886d60bb",
+          "padding": "None",
+          "width": "stretch",
+          "items": [
+            {
+              "type": "TextBlock",
+              "id": "20f3833e-0435-5c87-fad1-b528e0046fb6",
+              "text": "Update",
+              "wrap": true
+            }
+          ],
+          "verticalContentAlignment": "Center"
+        },
+        {
+          "type": "Column",
+          "id": "74215a26-fa8b-e549-cced-7f99fd34a661",
+          "padding": "None",
+          "width": "auto",
+          "items": [
+            {
+              "type": "Image",
+              "id": "795047e2-e63e-6e14-07ba-5a3e13323dff",
+              "url": "{IMAGE}",
+              "size": "Small"
+            }
+          ],
+          "horizontalAlignment": "Right"
+        }
+      ],
+      "padding": {
+        "top": "Small",
+        "bottom": "Small",
+        "left": "Default",
+        "right": "Small"
+      },
+      "style": "emphasis"
+    },
+    {
+      "type": "Container",
+      "id": "fbcee869-2754-287d-bb37-145a4ccd750b",
+      "spacing": "None",
+      "items": [
+        {
+          "type": "TextBlock",
+          "id": "44906797-222f-9fe2-0b7a-e3ee21c6e380",
+          "text": "{TITLE}",
+          "wrap": true,
+          "weight": "Bolder",
+          "size": "Large"
+        },
+        {
+          "type": "TextBlock",
+          "id": "f7abdf1a-3cce-2159-28ef-f2f362ec937e",
+          "text": "{BODY}",
+          "wrap": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "@type": "MessageCard",
+  "@context": "http://schema.org/extensions",
+  "themeColor": "#{COLOR}",
+  "summary": "{TITLE}",
+  "sections": [
+    {
+      "activityTitle": "{TITLE}",
+      "activitySubtitle": "{BODY}",
+      "activityImage": "{IMAGE}",
+      "facts": [
+        {
+          "name": "Sent with",
+          "value": "cinemapub/teams-cli"
+        }
+      ],
+      "markdown": true
+    }
+  ]
+}
