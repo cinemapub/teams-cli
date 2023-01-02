@@ -52,8 +52,11 @@ Flags, options and parameters:
 ## ⚡️ Examples
 
 ```bash
-> teams-cli .
-# start PhpStorm with current folder as project
+> teams-cli send simple "this is my text"
+
+> teams-cli -C FF6600 -T "This is the Title" send simple "this is my text"
+
+> teams-cli -I "https://media2.giphy.com/media/3o7aCZDlmQZLe4Q4V2/giphy.gif" send hero "this is my text"
 ```
 
 ## 🚀 Installation

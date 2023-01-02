@@ -1,0 +1,39 @@
+{
+  "type":"message",
+  "attachments":[
+    {
+      "contentType":"application/vnd.microsoft.card.adaptive",
+      "contentUrl":null,
+      "content":{
+        "$schema":"http://adaptivecards.io/schemas/adaptive-card.json",
+        "type":"AdaptiveCard",
+        "version":"1.2",
+        "action": "type",
+        "actions": [
+          {
+            "type": "Action.OpenUrl",
+            "title": "{BUTTON}",
+            "url": "{BUTTON_TEXT}",
+            "style": "positive"
+          }
+        ],
+        "body":[
+          {
+            "type": "TextBlock",
+            "text": "{TITLE}",
+            "size": "Large",
+            "weight": "Bolder"
+          },
+          {
+            "type": "TextBlock",
+            "text": "{BODY}"
+          },
+          {
+            "type": "Image",
+            "url": "{IMAGE}"
+          }
+        ]
+      }
+    }
+  ]
+}

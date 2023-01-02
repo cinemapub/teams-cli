@@ -52,11 +52,12 @@ flag|f|force|do not ask for confirmation (always yes)
 option|l|log_dir|folder for log files |./log
 option|t|tmp_dir|folder for temp files|./tmp
 option|C|COLOR|color of the message|666666
-option|I|URL_IMAGE|public image URL to include|https://raw.githubusercontent.com/cinemapub/teams-cli/master/icon/unsplash.white.jpg
 option|T|TITLE|Title of the message|Update
-option|U|URL_WEBHOOK|MS Teams Webhook URL to use as destination
+option|U|URL_WEBHOOK|MS Teams Webhook URL to use as destination (required, put in .env preferably)
+option|I|URL_IMAGE|public image URL to include|https://raw.githubusercontent.com/cinemapub/teams-cli/master/icon/unsplash.white.jpg
+option|B|URL_BUTTON|include URL for a button|https://github.com/cinemapub/teams-cli
 choice|1|action|action to perform|send,md,check,env,update
-choice|1|template|template to use|simple,image,hero
+choice|1|template|template to use|simple,button,image,hero
 param|?|body|Body of the message
 " -v -e '^#' -e '^\s*$'
 }
@@ -85,7 +86,8 @@ Script:main() {
     md)
       #TIP: use «$script_prefix md» to pipe an update tp Teams
       #TIP:> ( ... generate text ) | $script_prefix -T "Title" md
-      send_message "$template" "$TITLE" "$body" "$URL_IMAGE"
+      body=$(cat)
+      send_message "$template_file" "$TITLE" "$body" "$URL_IMAGE"
       ;;
 
     check | env)
@@ -135,11 +137,15 @@ send_message() {
     -v title="$2" \
     -v body="$3" \
     -v image="$URL_IMAGE" \
+    -v button="$URL_BUTTON" \
     '{
     gsub("{COLOR}",color);
     gsub("{TITLE}",title);
     gsub("{BODY}",body);
     gsub("{IMAGE}",image);
+    gsub("{BUTTON}",button);
+    button_text = gsub("https://","",button);
+    gsub("{BUTTON_TEXT}",button_text);
     print;
     }' > "$json_file"
 
@@ -147,7 +153,8 @@ send_message() {
   if [[ "$status" == "1" ]] ; then
     IO:success "OK"
   else
-    IO:alert "Update could not be sent"
+    IO:alert "$status"
+    IO:die "Update could not be sent"
   fi
 }
 
