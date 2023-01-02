@@ -85,7 +85,7 @@ Script:main() {
     md)
       #TIP: use «$script_prefix md» to pipe an update tp Teams
       #TIP:> ( ... generate text ) | $script_prefix -T "Title" md
-      send_message "$template" "$title" "$body" "$URL_IMAGE"
+      send_message "$template" "$TITLE" "$body" "$URL_IMAGE"
       ;;
 
     check | env)
@@ -173,6 +173,7 @@ quiet=0
 
 ### stdIO:print/stderr output
 function IO:initialize() {
+  # shellcheck disable=SC2034
   script_started_at="$(Tool:time)"
   [[ "${BASH_SOURCE[0]:-}" != "${0}" ]] && sourced=1 || sourced=0
   [[ -t 1 ]] && piped=0 || piped=1 # detect if output is piped
