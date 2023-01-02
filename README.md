@@ -8,6 +8,8 @@
 
 # teams-cli
 
+![](assets/unsplash.teams.jpg)
+
 Send messages to MS Teams channels from CLI
 
 ## 🔥 Usage
@@ -45,6 +47,10 @@ or with `git`
 
 	$ git clone https://github.com/cinemapub/teams-cli.git
 	$ cd teams-cli
+
+On the MS Teams side:
+
+![](assets/webhook.png)
 
 ## 📝 Acknowledgements
 

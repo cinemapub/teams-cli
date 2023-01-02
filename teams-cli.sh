@@ -53,9 +53,10 @@ option|l|log_dir|folder for log files |./log
 option|t|tmp_dir|folder for temp files|./tmp
 option|C|COLOR|color of the message|666666
 option|I|URL_IMAGE|public image URL to include
-option|U|URL_WEBHOOK|MS Teams URL to use as destination
-choice|1|action|action to perform|text,image,check,env,update
-param|?|title|Title of the message
+option|T|TITLE|Title of the message|Update
+option|U|URL_WEBHOOK|MS Teams Webhook URL to use as destination
+choice|1|action|action to perform|text,image,md,check,env,update
+choice|1|template|template to use|simple,image,hero
 param|?|body|Body of the message
 " -v -e '^#' -e '^\s*$'
 }
@@ -78,6 +79,12 @@ Script:main() {
       ;;
 
     image)
+      template="$script_install_folder/template/message_card.json"
+      #TIP:> $script_prefix text/image "title" "body"
+      send_message "$template" "$title" "$body" "$URL_IMAGE"
+      ;;
+
+    md)
       template="$script_install_folder/template/message_card.json"
       #TIP:> $script_prefix text/image "title" "body"
       send_message "$template" "$title" "$body" "$URL_IMAGE"
