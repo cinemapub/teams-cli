@@ -52,10 +52,10 @@ flag|f|force|do not ask for confirmation (always yes)
 option|l|log_dir|folder for log files |./log
 option|t|tmp_dir|folder for temp files|./tmp
 option|C|COLOR|color of the message|666666
-option|I|URL_IMAGE|public image URL to include
+option|I|URL_IMAGE|public image URL to include|https://raw.githubusercontent.com/cinemapub/teams-cli/master/icon/unsplash.white.jpg
 option|T|TITLE|Title of the message|Update
 option|U|URL_WEBHOOK|MS Teams Webhook URL to use as destination
-choice|1|action|action to perform|text,image,md,check,env,update
+choice|1|action|action to perform|send,md,check,env,update
 choice|1|template|template to use|simple,image,hero
 param|?|body|Body of the message
 " -v -e '^#' -e '^\s*$'
@@ -70,23 +70,21 @@ Script:main() {
 
   Os:require "awk"
 
+  # shellcheck disable=SC2154
+  template_file="$script_install_folder/template/$template.json"
+  [[ ! -f "$template_file" ]] && IO:die "Unknown format template '$template'"
   action=$(Str:lower "$action")
   case $action in
-    text)
-      template="$script_install_folder/template/adaptive_text.json"
-      #TIP:> $script_prefix text/image "title" "body"
-      send_message "$template" "$title" "$body" "$URL_IMAGE"
-      ;;
-
-    image)
-      template="$script_install_folder/template/message_card.json"
-      #TIP:> $script_prefix text/image "title" "body"
-      send_message "$template" "$title" "$body" "$URL_IMAGE"
+    send)
+      #TIP: use «$script_prefix send» to send an update tp Teams
+      #TIP:> $script_prefix -T "title" send simple "body"
+      # shellcheck disable=SC2154
+      send_message "$template_file" "$TITLE" "$body" "$URL_IMAGE"
       ;;
 
     md)
-      template="$script_install_folder/template/message_card.json"
-      #TIP:> $script_prefix text/image "title" "body"
+      #TIP: use «$script_prefix md» to pipe an update tp Teams
+      #TIP:> ( ... generate text ) | $script_prefix -T "Title" md
       send_message "$template" "$title" "$body" "$URL_IMAGE"
       ;;
 
@@ -134,8 +132,8 @@ send_message() {
   json_file=$(Os:tempfile json)
   < "$1" awk \
     -v color="$COLOR" \
-    -v title="$title" \
-    -v body="$body" \
+    -v title="$2" \
+    -v body="$3" \
     -v image="$URL_IMAGE" \
     '{
     gsub("{COLOR}",color);
@@ -143,8 +141,14 @@ send_message() {
     gsub("{BODY}",body);
     gsub("{IMAGE}",image);
     print;
-    }' > $json_file
-  curl -H 'Content-Type: application/json' -d "@$json_file" "$URL_WEBHOOK"
+    }' > "$json_file"
+
+  status=$(curl -s -H 'Content-Type: application/json' -d "@$json_file" "$URL_WEBHOOK")
+  if [[ "$status" == "1" ]] ; then
+    IO:success "OK"
+  else
+    IO:alert "Update could not be sent"
+  fi
 }
 
 #####################################################################
@@ -169,7 +173,7 @@ quiet=0
 
 ### stdIO:print/stderr output
 function IO:initialize() {
-  script_started_at=$(Tool:time)
+  script_started_at="$(Tool:time)"
   [[ "${BASH_SOURCE[0]:-}" != "${0}" ]] && sourced=1 || sourced=0
   [[ -t 1 ]] && piped=0 || piped=1 # detect if output is piped
   if [[ $piped -eq 0 ]]; then
@@ -325,9 +329,10 @@ function Tool:throughput() {
   local operations=${2:-1}
   local name=${3:-operation}
 
-  local time_finished=$(Tool:time)
+  local time_finished
+  time_finished=$(Tool:time)
   duration=$(Tool:calc "$time_finished - $time_started")
-  seconds=$(Tool:round $duration)
+  seconds=$(Tool:round "$duration")
   if [[ "$operations" -gt 1 ]] ; then
     if [[ $operations -gt $seconds ]] ; then
       ops=$(Tool:calc "$operations / $duration" )
@@ -452,6 +457,8 @@ trap "IO:die \"ERROR \$? after \$SECONDS seconds \n\
 # cf https://askubuntu.com/questions/513932/what-is-the-bash-command-variable-good-for
 
 Script:exit() {
+  IO:debug "$script_basename cleanup started"
+  echo "${temp_files[@]}"
   for temp_file in "${temp_files[@]-}"; do
     [[ -f "$temp_file" ]] && (
       IO:debug "Delete temp file [$temp_file]"
